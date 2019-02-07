@@ -1,2 +1,3 @@
-# digest-auth
+# @vmreal/digest-auth
+
 TODO
