@@ -1,7 +1,30 @@
-export class Header {
-  public static parce<T>(header: string): T;
-  public static generate<T>(digest: T): string;
+import {get, reduce} from 'lodash';
+
+export type Params = {
+  [prop: string]: string | number;
 }
+
+export class Header {
+  public static parse(header: string): Params {
+    const components = header.split(' ');
+    const params = reduce(components.slice(1).join(' ').split(', '), (acc: object, param: string) => {
+      const pair = param.split('=');
+      return {
+        ...acc,
+        [get(pair, '0', 'unknown')]: get(pair, '1', 'unknown')
+      };
+    }, {});
+    return {
+      ...params,
+      scheme: get(components, '0', 'unknown')
+    };
+  }
+
+  public static generate<T>(digest: T): string {
+    return '123' + digest.toString();
+  }
+}
+
 
 export interface ClientDigest {
   username: string;
@@ -12,7 +35,8 @@ export interface ClientDigest {
   uri: string,
   qop: string,
   algorithm: string
-  response: string
+  response: string,
+  opaque: string,
 }
 
 

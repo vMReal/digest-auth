@@ -14,7 +14,7 @@ import {ANALYZE_CODE_NOT_SUPPORT_QOP, ANALYZE_CODE_VALIDATE, AnalyzeException} f
 export class ServerDigestAuth {
   public static analyze(header: string, allowQop: string[]): ClientDigest  {
     try {
-      const plainDigest = Header.parce<ClientDigest>(header);
+      const plainDigest = Header.parse(header);
       const digest: ClientDigestDto = plainToClass(ClientDigestDto, plainDigest, {strategy: "excludeAll"});
       validateSync(digest, {})
 
@@ -61,7 +61,7 @@ export class ServerDigestAuth {
         nonce: Nonce.generate()
       };
 
-      const digest: ClientDigestDto = plainToClass(ServerDigestDto, plainDigest, {strategy: "excludeAll"});
+      const digest: ServerDigestDto = plainToClass(ServerDigestDto, plainDigest, {strategy: "excludeAll"});
       validateSync(digest, {})
 
       return {
@@ -76,7 +76,7 @@ export class ServerDigestAuth {
 
 
 export interface GeneratedResponse extends ServerDigest {
-  domain?: string, opaque?: string, stale?: string, algorithm?: string, qop?:string,
+  raw: string
 }
 
 export interface GenerateResponseOption {
