@@ -2,20 +2,22 @@ import {ClientDigest, Header, ServerDigest} from "./header";
 import {plainToClass} from "class-transformer";
 import {validateSync, Validator} from "class-validator";
 import {GENERATE_RESPONSE_CODE_VALIDATE, GenerateResponseException} from "./exceptions/generate-response.exception";
-import {ServerDigestDto} from "./dto/server-digest.dto";
-import {ClientDigestDto} from "./dto/client-digest.dto";
+import {OutgoingDigestDto} from "./dto/server/outgoing-digest.dto";
+import {IncomingDigestDto} from "./dto/server/incoming-digest.dto";
 import {Nonce} from "./encryptions/nonce";
 import {Response} from "./encryptions/response";
 import {ALGORITHM_MD5_SESS, QOP_AUTH_INT} from "./constants";
 import {HA2} from "./encryptions/h2";
 import {HA1} from "./encryptions/h1";
 import {ANALYZE_CODE_NOT_SUPPORT_QOP, ANALYZE_CODE_VALIDATE, AnalyzeException} from "./exceptions/analyze-exception";
+import { OutgoingTransformDigestDto } from './dto/server/outgoing-transform-digest.dto';
+import {omitBy, isUndefined} from "lodash"
 
 export class ServerDigestAuth {
   public static analyze(header: string, allowQop: string[]): ClientDigest  {
     try {
       const plainDigest = Header.parse(header);
-      const digest: ClientDigestDto = plainToClass(ClientDigestDto, plainDigest, {strategy: "excludeAll"});
+      const digest: IncomingDigestDto = plainToClass(IncomingDigestDto, plainDigest, {strategy: "excludeAll"});
       validateSync(digest, {})
 
       if (!new Validator().isIn(plainDigest.qop, allowQop))
@@ -61,12 +63,14 @@ export class ServerDigestAuth {
         nonce: Nonce.generate()
       };
 
-      const digest: ServerDigestDto = plainToClass(ServerDigestDto, plainDigest, {strategy: "excludeAll"});
-      validateSync(digest, {})
+      const digest: OutgoingDigestDto = plainToClass(OutgoingDigestDto, plainDigest, {strategy: "excludeAll"});
+      validateSync(digest, {});
+
+      const finalDigest: OutgoingTransformDigestDto = plainToClass(OutgoingTransformDigestDto, plainDigest, {strategy: "excludeAll"});
 
       return {
         ...digest,
-        raw: Header.generate<ServerDigest>({...digest})
+        raw: Header.generate({...omitBy(finalDigest, isUndefined)})
       }
     } catch (e) {
       throw new GenerateResponseException(GENERATE_RESPONSE_CODE_VALIDATE);

@@ -20,8 +20,10 @@ export class Header {
     };
   }
 
-  public static generate<T>(digest: T): string {
-    return '123' + digest.toString();
+  public static generate(digest: {[key: string]: string}): string {
+    return 'Digest ' + reduce(digest, (acc: string[], value: string, key: string) => {
+      return [...acc, `${key}=${value}`];
+    }, []).join(', ');
   }
 }
 

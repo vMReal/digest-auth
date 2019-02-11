@@ -1,9 +1,9 @@
-import {ClientDigest} from "../header";
+import {ClientDigest} from "../../header";
 import {Expose} from "class-transformer";
-import {RemoveQuotes} from "../decorators/remove-quotes.decorator";
+import {RemoveQuotes} from "../../decorators/remove-quotes.decorator";
 import {IsOptional, IsString} from "class-validator";
 
-export class ClientDigestDto implements ClientDigest{
+export class IncomingDigestDto implements ClientDigest {
 
   @Expose()
   @RemoveQuotes()

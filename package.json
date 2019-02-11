@@ -1,5 +1,5 @@
 {
-  "name": "@vmreal/digest-auth",
+  "name": "@mreal/digest-auth",
   "version": "0.0.1",
   "description": "TODO",
   "main": "build/main/index.js",

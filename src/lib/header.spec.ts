@@ -19,3 +19,16 @@ test('parse', t => {
       opaque: '"test-opaque"',
     });
 });
+
+
+test('generate', t => {
+  const header  = Header.generate({
+    realm: '"test-realm"',
+    nonce: '"test-nonce"',
+    qop: 'auth',
+    algorithm: '"MD5"',
+    opaque: '"test-opaque"',
+  });
+
+  t.is(header, 'Digest realm="test-realm", nonce="test-nonce", qop=auth, algorithm="MD5", opaque="test-opaque"')
+});
