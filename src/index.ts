@@ -1,1 +1,2 @@
-export {Header} from "./lib/header";
+export {ServerDigestAuth} from "./lib/server-digest-auth"
+export * from "./lib/constants";
