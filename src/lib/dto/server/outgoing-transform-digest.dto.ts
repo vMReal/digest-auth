@@ -3,9 +3,6 @@ import { Expose } from 'class-transformer';
 import { AddQuotes } from '../../decorators/add-quotes.decorator';
 
 export class OutgoingTransformDigestDto implements ServerDigest {
-  @Expose()
-  @AddQuotes()
-  username: string;
 
   @Expose()
   @AddQuotes()

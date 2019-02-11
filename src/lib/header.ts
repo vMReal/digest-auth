@@ -43,7 +43,6 @@ export interface ClientDigest {
 
 
 export interface ServerDigest {
-  username: string;
   realm: string
   nonce: string,
   qop?: string,

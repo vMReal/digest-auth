@@ -11,7 +11,7 @@ import {HA2} from "./encryptions/h2";
 import {HA1} from "./encryptions/h1";
 import {ANALYZE_CODE_NOT_SUPPORT_QOP, ANALYZE_CODE_VALIDATE, AnalyzeException} from "./exceptions/analyze-exception";
 import { OutgoingTransformDigestDto } from './dto/server/outgoing-transform-digest.dto';
-import {omitBy, isUndefined} from "lodash"
+import {omitBy, isUndefined} from "lodash";
 
 export class ServerDigestAuth {
   public static analyze(header: string, allowQop: string[]): ClientDigest  {
@@ -69,8 +69,8 @@ export class ServerDigestAuth {
       const finalDigest: OutgoingTransformDigestDto = plainToClass(OutgoingTransformDigestDto, plainDigest, {strategy: "excludeAll"});
 
       return {
-        ...digest,
-        raw: Header.generate({...omitBy(finalDigest, isUndefined)})
+        ...digest, // @TODO remove undefined
+        raw: Header.generate(omitBy(finalDigest, isUndefined))
       }
     } catch (e) {
       throw new GenerateResponseException(GENERATE_RESPONSE_CODE_VALIDATE);

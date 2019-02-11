@@ -6,10 +6,6 @@ export class OutgoingDigestDto implements ServerDigest {
 
   @Expose()
   @IsString()
-  username: string;
-
-  @Expose()
-  @IsString()
   realm: string;
 
   @Expose()
