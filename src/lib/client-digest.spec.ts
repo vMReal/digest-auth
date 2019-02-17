@@ -7,8 +7,8 @@ import {ClientDigestAuth} from "./client-digest-auth";
 const HEADER_UNPROTECTED = 'Digest realm="test-realm", nonce="test-nonce"';
 const HEADER_HEADER_UNPROTECTED_MD5 = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5"';
 const HEADER_AUTH_MD5 = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5", qop=auth';
-const HEADER_AUTH_SESS = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5-sess", qop=auth, opaque="test-opaque"';
-const HEADER_AUTHINT_MD5 = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5", qop=auth-int, opaque="test-opaque"';
+const HEADER_AUTH_SESS = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5-sess", qop=auth';
+const HEADER_AUTHINT_MD5 = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5", qop=auth-int';
 const HEADER_AUTHINT_MD5_OPAQUE = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5", qop=auth-int, opaque="test-opaque"';
 // @TODO add stale and domain
 
