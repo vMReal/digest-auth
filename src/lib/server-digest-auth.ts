@@ -16,7 +16,7 @@ import {omitBy, isUndefined} from "lodash";
 export class ServerDigestAuth {
   public static analyze(header: string, allowQop: string[]): ClientDigest  {
     try {
-      const plainDigest = Header.parse(header);
+      const plainDigest: IncomingDigestDto = Header.parse(header);
       const digest: IncomingDigestDto = plainToClass(IncomingDigestDto, plainDigest, {strategy: "excludeAll"});
       validateSync(digest, {})
 

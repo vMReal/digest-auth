@@ -1,25 +1,36 @@
-import {ClientDigest, Header, ServerDigest} from "./header";
-import {plainToClass} from "class-transformer";
-import {validateSync, Validator} from "class-validator";
-import {GENERATE_RESPONSE_CODE_VALIDATE, GenerateResponseException} from "./exceptions/generate-response.exception";
+import {Header} from "./header";
+import {validateSync} from "class-validator";
 import {Nonce} from "./encryptions/nonce";
 import {Response} from "./encryptions/response";
-import {ALGORITHM_MD5_SESS, QOP_AUTH, QOP_AUTH_INT} from "./constants";
+import {ALGORITHM_MD5, ALGORITHM_MD5_SESS, QOP_AUTH, QOP_AUTH_INT} from "./constants";
 import {HA2} from "./encryptions/h2";
 import {HA1} from "./encryptions/h1";
-import {ANALYZE_CODE_NOT_SUPPORT_QOP, ANALYZE_CODE_VALIDATE, AnalyzeException} from "./exceptions/analyze-exception";
-import {omitBy, isUndefined, pick} from "lodash";
+import {ANALYZE_CODE_VALIDATE, AnalyzeException} from "./exceptions/analyze-exception";
 import {IncomingDigestDto} from "./dto/client/incoming-digest.dto";
 import {Cn} from "./encryptions/cn";
 import {Dto} from "./utils/dto";
-import {ResponsePayloadDto} from "./dto/client/response-payload.dto";
-import {OutgoingTransformDigestDto} from "./dto/client/outgoing-transform-digest.dto";
+import {
+  OutgoingTransformProtectedDigestDto,
+  OutgoingTransformUnprotectedDigestDto
+} from "./dto/client/outgoing-transform-digest.dto";
+import {
+  PayloadProtectionAuth,
+  PayloadProtectionAuthInt,
+  PayloadUnprotected
+} from "./interfaces/client/payload.interface";
+import {OutgoingProtectedDigestDto, OutgoingUnprotectedDigestDto} from "./dto/client/outgoing-digest.dto";
+import {ClientProtectedDigest, ClientUnprotectedDigest, ServerDigest} from "./interfaces/client/digest.interface";
+import {
+  GeneratedProtectedResponse,
+  GeneratedUnprotectedResponse
+} from "./interfaces/client/generated-response.interface";
+import {PayloadProtectionAuthDto, PayloadProtectionAuthIntDto, PayloadUnprotectedDto} from "./dto/client/payload.dto";
 
 export class ClientDigestAuth {
   public static analyze(header: string): ServerDigest  {
     try {
       const plainDigest = Header.parse(header);
-      const digest: IncomingDigestDto = plainToClass(IncomingDigestDto, plainDigest, {strategy: "excludeAll"});
+      const digest: ServerDigest = Dto.validate(IncomingDigestDto, plainDigest) as ServerDigest;
       validateSync(digest, {})
 
       return {...digest};
@@ -31,93 +42,69 @@ export class ClientDigestAuth {
     }
   }
 
-
-
-  public static generateResponse(digest: ServerDigest, username: string, password: string, clientPayload: ResponsePayload): boolean {
-    const payload = Dto.validate(ResponsePayloadDto, clientPayload);
-
-    if (payload.force_algorithm)
-      digest.algorithm = payload.force_algorithm;
-
-    if (payload.force_qop)
-      digest.qop = payload.force_qop;
-
-    const response = (digest.qop)
-      ? this.generateWithQOP(digest, username, password, clientPayload)
-      : this.generateWithoutQOP(digest, username, password, clientPayload)
-
+  protected static generateUnprotected(serverDigest: ServerDigest, username: string, password: string, payload: PayloadUnprotected): GeneratedUnprotectedResponse {
+    const validPayload = Dto.validate(PayloadUnprotectedDto, payload);
+    const h1 = HA1.generate(username, password, serverDigest.realm);
+    const h2 = HA2.generate(validPayload.method, validPayload.uri);
+    const response = Response.generate(h1, serverDigest.nonce, h2);
+    const digest: ClientUnprotectedDigest = Dto.validate(OutgoingUnprotectedDigestDto, {nonce: serverDigest.nonce, realm: serverDigest.realm, response, username});
     return {
-      ...responce,
-      raw: Header.generate(Dto.validate(OutgoingTransformDigestDto, response))
+      ...digest,
+      raw: Header.generate({...Dto.validate(OutgoingTransformUnprotectedDigestDto, digest)}),
     };
   }
 
-  protected static generate(digest: ServerDigest, username: string, password: string, payload: Payload) {
-    const h1 = HA1.generate(username, password, digest.realm);
-    const h2 = HA2.generate(payload.method, payload.uri)
-    const response = Response.generate(h1, digest.nonce, h2)
-    return {nonce: digest.nonce, realm: digest.realm, response, username};
+  public static generateProtectionAuth(serverDigest: ServerDigest, username: string, password: string, payload: PayloadProtectionAuth): GeneratedProtectedResponse {
+    return this.generateQOP(
+      {...serverDigest, qop: QOP_AUTH},
+      username,
+      password,
+      Dto.validate(PayloadProtectionAuthDto, {...payload, entryBody: ''})
+    );
   }
 
-  protected static generateAuth(digest: ServerDigest, username: string, password: string, payload: PayloadAuth) {
-    return this.generateQOP({...digest, qop: QOP_AUTH}, username, password, {...payload, entryBody: ''});
+  public static generateAuthInt(serverDigest: ServerDigest, username: string, password: string, payload: PayloadProtectionAuthInt): GeneratedProtectedResponse {
+    return this.generateQOP(
+      {...serverDigest, qop: QOP_AUTH_INT},
+      username,
+      password,
+      Dto.validate(PayloadProtectionAuthIntDto, payload)
+    );
   }
 
-  protected static generateAuthInt(digest: ServerDigest, username: string, password: string, payload: PayloadAuthInt) {
-    return this.generateQOP({...digest, qop: QOP_AUTH_INT}, username, password, {...payload, entryBody: ''});
-  }
-
-  protected static generateQOP(digest: ServerDigest, username: string, password: string, payload: PayloadAuth | PayloadAuthInt) {
+  protected static generateQOP(serverDigest: ServerDigest & {qop: string}, username: string, password: string, payload: PayloadProtectionAuthInt): GeneratedProtectedResponse {
     const cnonce = Nonce.generate();
     const nc = Cn.toHex(payload.counter);
+    const algorithm: string = (payload.force_algorithm)
+      ? payload.force_algorithm
+      : serverDigest.algorithm || ALGORITHM_MD5;
 
-    const initialH1 = HA1.generate(username, password, digest.realm);
-    const h1 = (digest.algorithm === ALGORITHM_MD5_SESS)
-      ? HA1.generateSess(initialH1, digest.nonce, cnonce)
+    const initialH1 = HA1.generate(username, password, serverDigest.realm);
+    const h1 = (algorithm === ALGORITHM_MD5_SESS)
+      ? HA1.generateSess(initialH1, serverDigest.nonce, cnonce)
       : initialH1;
 
-    const h2 = (digest.qop === QOP_AUTH_INT)
+    const h2 = (serverDigest.qop === QOP_AUTH_INT)
       ? HA2.generateInt(payload.method, payload.uri, payload.entryBody)
       : HA2.generate(payload.method, payload.uri)
 
-    const response = Response.generateProtected(h1, digest.nonce, h2, nc, cnonce, digest.qop)
-
-    return {
-      nonce: digest.nonce,
-      realm: digest.realm,
-      opaque: digest.opaque,
-      algorithm: digest.algorithm,
-      qop: digest.qop,
+    const response = Response.generateProtected(h1, serverDigest.nonce, h2, nc, cnonce, serverDigest.qop)
+    const digest: ClientProtectedDigest = Dto.validate(OutgoingProtectedDigestDto,{
+      nonce: serverDigest.nonce,
+      realm: serverDigest.realm,
+      opaque: serverDigest.opaque,
+      algorithm: algorithm,
+      qop: serverDigest.qop,
+      uri: payload.uri,
       response,
       username,
       cnonce,
       nc
+    });
+
+    return {
+      ...digest,
+      raw: Header.generate({...Dto.validate(OutgoingTransformProtectedDigestDto, digest)}),
     };
   }
-}
-
-
-export interface GeneratedResponse extends ServerDigest {
-  raw: string
-}
-
-export interface GenerateResponseOption {
-  domain?: string, opaque?: string, stale?: string, algorithm?: string, qop?:string,
-}
-
-export interface ResponsePayload {
-  entryBody: string, method: string, uri: string, counter?: number, force_qop?: string, force_algorithm?: string
-}
-
-
-export interface Payload {
-  method: string, uri: string
-}
-
-export interface PayloadAuth {
-  entryBody: string, method: string, uri: string, counter: number, force_qop: string, force_algorithm: string
-}
-
-export interface PayloadAuthInt extends PayloadAuth {
-  entryBody: string
 }

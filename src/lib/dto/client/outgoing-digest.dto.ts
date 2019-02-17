@@ -1,8 +1,8 @@
-import {ClientDigest} from "../../header";
 import {Expose} from "class-transformer";
 import {IsOptional, IsString} from "class-validator";
+import {ClientProtectedDigest, ClientUnprotectedDigest} from "../../interfaces/client/digest.interface";
 
-export class OutgoingDigestDto implements ClientDigest {
+export class OutgoingUnprotectedDigestDto implements ClientUnprotectedDigest {
 
   @Expose()
   @IsString()
@@ -18,35 +18,33 @@ export class OutgoingDigestDto implements ClientDigest {
 
   @Expose()
   @IsString()
-  @IsOptional()
-  cnonce?: string;
-
-  @Expose()
-  @IsString()
-  @IsOptional()
-  nc?: string;
-
-  @Expose()
-  @IsString()
-  @IsOptional()
-  uri?: string;
-
-  @Expose()
-  @IsString()
-  @IsOptional()
-  qop?: string;
-
-  @Expose()
-  @IsString()
-  @IsOptional()
-  algorithm?: string;
-
-  @Expose()
-  @IsString()
   response: string;
+}
+
+export class OutgoingProtectedDigestDto extends OutgoingUnprotectedDigestDto implements ClientProtectedDigest {
+
+  @Expose()
+  @IsString()
+  cnonce: string;
+
+  @Expose()
+  @IsString()
+  nc: string;
+
+  @Expose()
+  @IsString()
+  uri: string;
 
   @Expose()
   @IsString()
   @IsOptional()
+  qop: string;
+
+  @Expose()
+  @IsString()
+  algorithm: string;
+
+  @Expose()
+  @IsString()
   opaque?: string;
 }

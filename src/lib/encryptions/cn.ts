@@ -1,5 +1,7 @@
 const INT32_MAX_VALUE = 2147483647;
 
+export const CN_MAX_INT_VALUE = INT32_MAX_VALUE;
+
 export class Cn {
 
   public static toHex(value: number): string {

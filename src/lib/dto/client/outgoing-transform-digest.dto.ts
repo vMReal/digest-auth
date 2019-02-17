@@ -1,8 +1,10 @@
-import {ServerDigest} from "../../header";
 import { Expose } from 'class-transformer';
 import { AddQuotes } from '../../decorators/add-quotes.decorator';
+import {ClientProtectedDigest, ClientUnprotectedDigest} from "../../interfaces/client/digest.interface";
 
-export class OutgoingTransformDigestDto implements ServerDigest {
+
+
+export class OutgoingTransformUnprotectedDigestDto implements ClientUnprotectedDigest {
 
   @Expose()
   @AddQuotes()
@@ -18,25 +20,28 @@ export class OutgoingTransformDigestDto implements ServerDigest {
 
   @Expose()
   @AddQuotes()
-  cnonce?: string;
-
-  @Expose()
-  nc?: string;
-
-  @Expose()
-  @AddQuotes()
-  uri?: string;
-
-  @Expose()
-  qop?: string;
-
-  @Expose()
-  @AddQuotes()
-  algorithm?: string;
-
-  @Expose()
-  @AddQuotes()
   response: string;
+}
+
+export class OutgoingTransformProtectedDigestDto extends OutgoingTransformUnprotectedDigestDto implements ClientProtectedDigest {
+
+  @Expose()
+  @AddQuotes()
+  cnonce: string;
+
+  @Expose()
+  nc: string;
+
+  @Expose()
+  @AddQuotes()
+  uri: string;
+
+  @Expose()
+  qop: string;
+
+  @Expose()
+  @AddQuotes()
+  algorithm: string;
 
   @Expose()
   @AddQuotes()
