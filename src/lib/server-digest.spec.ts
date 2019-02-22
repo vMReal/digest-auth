@@ -4,7 +4,7 @@ import {ServerDigestAuth} from "./server-digest-auth";
 import { ALGORITHM_MD5, QOP_AUTH, QOP_AUTH_INT } from './constants';
 import {includes} from "lodash";
 
-//const HEADER_GET_QOPLESS_MD5 = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5", response="48388ab4ca0c46a73e4d2f23ccc7632e"';
+const HEADER_GET_QOPLESS_MD5 = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5", response="48388ab4ca0c46a73e4d2f23ccc7632e"';
 //const HEADER_GET_QOPLESS_SESS = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5-sess", cnonce="", response="02dfe2629099f3c569fc5cde9bf1e233"';
 const HEADER_GET_AUTH_MD5 = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5", qop=auth, nc=00000001, cnonce="test-cnonce", response="e524170b3e02dedaf6a1110131fb5a50", opaque="test-opaque"';
 const HEADER_GET_AUTH_SESS = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5-sess", qop=auth, nc=00000001, cnonce="test-cnonce", response="6f2b8d1c4fddae124e66f2d5980cee64", opaque="test-opaque"';
@@ -90,6 +90,31 @@ test('analyze POST(content+):QOP(auth-int):MD5 - body changed', t => {
 });
 
 
+test('analyze - allowQop as unprotected', t => {
+  t.notThrows(() => { ServerDigestAuth.analyze(HEADER_GET_QOPLESS_MD5, false) })
+  t.throws(() => { ServerDigestAuth.analyze(HEADER_POSTNESS_INT_MD5, false) })
+});
+
+test('analyze - allowQop as auth', t => {
+  t.notThrows(() => { ServerDigestAuth.analyze(HEADER_GET_AUTH_MD5, [QOP_AUTH]) })
+  t.throws(() => { ServerDigestAuth.analyze(HEADER_GET_QOPLESS_MD5, [QOP_AUTH]) })
+  t.throws(() => { ServerDigestAuth.analyze(HEADER_POSTNESS_INT_MD5, [QOP_AUTH]) })
+});
+
+test('analyze - allowQop as auth-in', t => {
+  t.notThrows(() => { ServerDigestAuth.analyze(HEADER_POSTNESS_INT_MD5, [QOP_AUTH_INT]) })
+  t.throws(() => { ServerDigestAuth.analyze(HEADER_GET_QOPLESS_MD5, [QOP_AUTH_INT]) })
+  t.throws(() => { ServerDigestAuth.analyze(HEADER_GET_AUTH_MD5, [QOP_AUTH_INT]) })
+});
+
+test('analyze - allowQop as auth&auth-in', t => {
+  t.notThrows(() => { ServerDigestAuth.analyze(HEADER_POSTNESS_INT_MD5, [QOP_AUTH, QOP_AUTH_INT]) })
+  t.notThrows(() => { ServerDigestAuth.analyze(HEADER_GET_AUTH_MD5, [QOP_AUTH, QOP_AUTH_INT]) })
+  t.throws(() => { ServerDigestAuth.analyze(HEADER_GET_QOPLESS_MD5, [QOP_AUTH, QOP_AUTH_INT]) })
+});
+
+
+
 
 /* ================= =============== */
 
@@ -111,3 +136,7 @@ test('generateResponse QOP(auth)', t => {
   t.true(includes(res.raw, `algorithm="${ALGORITHM_MD5}"`));
   t.true(includes(res.raw, `opaque="${TEST_OPAQUE}"`));
 });
+
+
+
+/* ===============  ================ */
