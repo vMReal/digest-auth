@@ -1,3 +1,3 @@
-# @vmreal/digest-auth
+# Digest-Auth
 
-TODO
+package in TODO (actively developed. will be ready asap)
