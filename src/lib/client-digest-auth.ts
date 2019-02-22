@@ -42,7 +42,7 @@ export class ClientDigestAuth {
     }
   }
 
-  protected static generateUnprotected(serverDigest: ServerDigest, username: string, password: string, payload: PayloadUnprotected): GeneratedUnprotectedResponse {
+  public static generateUnprotected(serverDigest: ServerDigest, username: string, password: string, payload: PayloadUnprotected): GeneratedUnprotectedResponse {
     const validPayload = Dto.validate(PayloadUnprotectedDto, payload);
     const h1 = HA1.generate(username, password, serverDigest.realm);
     const h2 = HA2.generate(validPayload.method, validPayload.uri);
@@ -63,7 +63,7 @@ export class ClientDigestAuth {
     );
   }
 
-  public static generateAuthInt(serverDigest: ServerDigest, username: string, password: string, payload: PayloadProtectionAuthInt): GeneratedProtectedResponse {
+  public static generateProtectionAuthInt(serverDigest: ServerDigest, username: string, password: string, payload: PayloadProtectionAuthInt): GeneratedProtectedResponse {
     return this.generateQOP(
       {...serverDigest, qop: QOP_AUTH_INT},
       username,

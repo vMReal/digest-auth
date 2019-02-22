@@ -14,13 +14,16 @@ import { OutgoingTransformDigestDto } from './dto/server/outgoing-transform-dige
 import {omitBy, isUndefined} from "lodash";
 
 export class ServerDigestAuth {
-  public static analyze(header: string, allowQop: string[]): ClientDigest  {
+  public static analyze(header: string, allowQop: string[] | false): ClientDigest  {
     try {
       const plainDigest: IncomingDigestDto = Header.parse(header);
       const digest: IncomingDigestDto = plainToClass(IncomingDigestDto, plainDigest, {strategy: "excludeAll"});
       validateSync(digest, {})
 
-      if (!new Validator().isIn(plainDigest.qop, allowQop))
+      if (allowQop === false && !isUndefined(plainDigest.qop))
+        throw new AnalyzeException(ANALYZE_CODE_NOT_SUPPORT_QOP);
+
+      if (allowQop !== false && !new Validator().isIn(plainDigest.qop, allowQop))
         throw new AnalyzeException(ANALYZE_CODE_NOT_SUPPORT_QOP);
 
       return {...digest};

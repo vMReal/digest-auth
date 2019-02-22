@@ -3,7 +3,7 @@ export interface PayloadUnprotected {
 }
 
 export interface PayloadProtectionAuth extends PayloadUnprotected {
-  entryBody: string, counter: number, force_qop: string, force_algorithm?: string
+  entryBody: string, counter: number, force_algorithm?: string
 }
 
 export interface PayloadProtectionAuthInt extends PayloadProtectionAuth {
