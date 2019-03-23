@@ -1,2 +1,3 @@
-export {ServerDigestAuth} from "./lib/server-digest-auth"
+export {ClientDigestAuth} from "./client";
+export {ServerDigestAuth} from "./server"
 export * from "./lib/constants";

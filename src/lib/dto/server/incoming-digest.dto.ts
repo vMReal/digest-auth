@@ -1,7 +1,7 @@
-import {ClientDigest} from "../../header";
 import {Expose} from "class-transformer";
 import {RemoveQuotes} from "../../decorators/remove-quotes.decorator";
 import {IsOptional, IsString} from "class-validator";
+import {ClientDigest} from "../../interfaces/server/digest.interface";
 
 export class IncomingDigestDto implements ClientDigest {
 

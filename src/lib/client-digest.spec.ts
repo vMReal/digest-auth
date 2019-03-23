@@ -142,7 +142,7 @@ test('generateUnprotected protected auth)', t => {
 
   const digest = ClientDigestAuth.analyze(HEADER_AUTH_MD5);
   const res = ClientDigestAuth.generateProtectionAuth(digest, TEST_USER, TEST_PASS, {
-    method: 'POST', uri: TEST_URI, counter: 1, entryBody: TEST_BODY,
+    method: 'POST', uri: TEST_URI, counter: 1,
   });
 
   t.is(res.username, TEST_USER);
@@ -173,7 +173,7 @@ test('generateUnprotected protected auth - check with server-digest)', t => {
 
   const digest = ClientDigestAuth.analyze(HEADER_AUTH_MD5);
   const res = ClientDigestAuth.generateProtectionAuth(digest, TEST_USER, TEST_PASS, {
-    method: 'POST', uri: TEST_URI, counter: 1, entryBody: TEST_BODY,
+    method: 'POST', uri: TEST_URI, counter: 1,
   });
 
   const incomingDigest = ServerDigestAuth.analyze(res.raw, [QOP_AUTH]);
@@ -253,7 +253,7 @@ test('generateProtectionAuth correct force server unprotected QOP)', t => {
 
   const digest = ClientDigestAuth.analyze(HEADER_UNPROTECTED);
   const res = ClientDigestAuth.generateProtectionAuth(digest, TEST_USER, TEST_PASS, {
-    method: 'POST', uri: TEST_URI, counter: 1, entryBody: TEST_BODY,
+    method: 'POST', uri: TEST_URI, counter: 1,
   });
 
   t.is(res.qop, QOP_AUTH);
@@ -264,7 +264,7 @@ test('generateProtectionAuth correct force server auth-int QOP)', t => {
 
   const digest = ClientDigestAuth.analyze(HEADER_AUTHINT_MD5);
   const res = ClientDigestAuth.generateProtectionAuth(digest, TEST_USER, TEST_PASS, {
-    method: 'POST', uri: TEST_URI, counter: 1, entryBody: TEST_BODY,
+    method: 'POST', uri: TEST_URI, counter: 1,
   });
 
   t.is(res.qop, QOP_AUTH);
@@ -301,7 +301,7 @@ test('generateProtectionAuth correct force server algorithm md5-sess)', t => {
 
   const digest = ClientDigestAuth.analyze(HEADER_AUTH_MD5);
   const res = ClientDigestAuth.generateProtectionAuth(digest, TEST_USER, TEST_PASS, {
-    method: 'POST', uri: TEST_URI, counter: 1, entryBody: TEST_BODY, force_algorithm: ALGORITHM_MD5_SESS
+    method: 'POST', uri: TEST_URI, counter: 1, force_algorithm: ALGORITHM_MD5_SESS
   });
 
   t.is(res.algorithm, ALGORITHM_MD5_SESS);
@@ -312,7 +312,7 @@ test('generateProtectionAuth correct force server algorithm md5)', t => {
 
   const digest = ClientDigestAuth.analyze(HEADER_AUTH_SESS);
   const res = ClientDigestAuth.generateProtectionAuth(digest, TEST_USER, TEST_PASS, {
-    method: 'POST', uri: TEST_URI, counter: 1, entryBody: TEST_BODY, force_algorithm: ALGORITHM_MD5  });
+    method: 'POST', uri: TEST_URI, counter: 1, force_algorithm: ALGORITHM_MD5  });
 
   t.is(res.algorithm, ALGORITHM_MD5);
   t.true(includes(res.raw, `algorithm="${res.algorithm}"`));
