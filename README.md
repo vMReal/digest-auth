@@ -20,6 +20,35 @@
 
 ## Usage Serve Digest Auth
 
+
+The first step does the Analyze of the header "Authorization" received from the server. 
+Analyze implies parse, validation and extract digest payload from client.
+As a result, we have an object of payload, such as: nonce, cnonce, username, qop, etc.
+This data can be used for extract password and necessary for the next step
+
+```javascript
+    import {ServerDigestAuth} from '@mreal/digest-auth';
+
+    const incomingDigest = ServerDigestAuth.analyze(headers['Authorization'], false);
+    
+    console.log(incomingDigest); 
+    // { username: 'user', response: 'e524170b3e02dedaf6a1110131fb5a50', nonce: 'd8483aa2fe3f31fe8b9497ed63e4899f3e352d980f7c56f0', cnonce: '2ea ...
+```
+
+The second step performs a verify by the hash comparison. To do this, we must provide a password and http with a payload (other fields will be obtained from the incoming digest)
+
+As a result, we have a boolean value of verification.
+
+
+```javascript
+    import {ServerDigestAuth} from '@mreal/digest-auth';
+
+    result =ServerDigestAuth.verifyByPassword(incomingDigest, password, { method: 'POST', uri: '/some-uri' })
+    
+    console.log(result);
+    // true
+```
+
 ## Usage Client Digest Auth
 
 ```javascript
