@@ -20,6 +20,24 @@
 
 ## Usage Serve Digest Auth
 
+```javascript
+    import {ServerDigestAuth} from '@mreal/digest-auth';
+  
+    try {
+        const incomingDigest = ServerDigestAuth.analyze(headers['Authorization'], false);
+        const result = ServerDigestAuth.verifyByPassword(incomingDigest, password, { 
+            method: 'POST', 
+            uri: '/some-uri' 
+        });
+        
+        if (!result)
+            throw new Error('authentication error');
+          
+    } catch (e) {
+        const response = ServerDigestAuth.generateResponse('all');
+    }
+```
+
 
 The first step does the Analyze of the header "Authorization" received from the server. 
 Analyze implies parse, validation and extract digest payload from client.
@@ -32,7 +50,7 @@ This data can be used for extract password and necessary for the next step
     const incomingDigest = ServerDigestAuth.analyze(headers['Authorization'], false);
     
     console.log(incomingDigest); 
-    // { username: 'user', response: 'e524170b3e02dedaf6a1110131fb5a50', nonce: 'd8483aa2fe3f31fe8b9497ed63e4899f3e352d980f7c56f0', cnonce: '2ea ...
+    // { username: 'user', response: 'e524170b3e02dedaf6a1110131fb5a50', nonce: 'd8483aa2fe3f31fe8b9497ed63e4899f3e352d980f7c56f0' ...
 ```
 
 The second step performs a verify by the hash comparison. To do this, we must provide a password and http with a payload (other fields will be obtained from the incoming digest)
@@ -43,11 +61,64 @@ As a result, we have a boolean value of verification.
 ```javascript
     import {ServerDigestAuth} from '@mreal/digest-auth';
 
-    result =ServerDigestAuth.verifyByPassword(incomingDigest, password, { method: 'POST', uri: '/some-uri' })
+    const result = ServerDigestAuth.verifyByPassword(incomingDigest, password, { 
+        method: 'POST', 
+        uri: '/some-uri' 
+    });
     
     console.log(result);
     // true
 ```
+
+
+The last step performed a generation of response. This response contain raw string for "WWW-Authenticate" header for 401 http-response and object of original data from raw string.
+
+We should generate digest response and return 401 "WWW-Authenticate" header in all cases expect success a authentication (analyze error, validation error, verify error, user not found, etc).
+
+```javascript
+    import {ServerDigestAuth} from '@mreal/digest-auth';
+
+    const response = ServerDigestAuth.generateResponse('all');
+    
+    console.log(response);
+    // { realm: 'all', raw: 'Digest realm="all"...
+```
+
+### Quality of protection (qop) 
+
+To begin, we will tell our function analysis the valid values. It can be one of qop or combination.
+
+We strictly limit the allowed qop.
+In case authentication attempt with not allowed qop, function analyze will throw an validation exception
+
+```javascript
+    import {ServerDigestAuth, QOP_AUTH} from '@mreal/digest-auth';
+
+    const incomingDigest = ServerDigestAuth.analyze(headers['Authorization'], [QOP_AUTH]);
+```
+
+Next, we must inform the client of our limitations (qop, algorithm(optional), etc). 
+
+And give other data necessary for authentication (opaque(optional), stale(optional), etc).
+
+```
+  import {ServerDigestAuth, QOP_AUTH, ALGORITHM_MD5_SESS} from '@mreal/digest-auth';
+
+  const response = ServerDigestAuth.generateResponse('all', {
+      opaque: 'customValue',
+      qop: QOP_AUTH,
+      algorithm: ALGORITHM_MD5_SESS,
+  });
+```
+
+And lastly validation
+
+qop assumes that we will, generate, store and verify issued a nonce. 
+
+Also we can store(optional) cnonce as a incrementable request counter, for reusable nonce (to save network resources). 
+If we want skip cnonce validation, we can check for equal 1 (always )
+
+.........
 
 ## Usage Client Digest Auth
 
