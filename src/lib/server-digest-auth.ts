@@ -1,4 +1,4 @@
-import {ClientDigest, Header, ServerDigest} from "./header";
+import {Header} from "./header";
 import {plainToClass} from "class-transformer";
 import {validateSync, Validator} from "class-validator";
 import {GENERATE_RESPONSE_CODE_VALIDATE, GenerateResponseException} from "./exceptions/generate-response.exception";
@@ -12,6 +12,10 @@ import {HA1} from "./encryptions/h1";
 import {ANALYZE_CODE_NOT_SUPPORT_QOP, ANALYZE_CODE_VALIDATE, AnalyzeException} from "./exceptions/analyze-exception";
 import { OutgoingTransformDigestDto } from './dto/server/outgoing-transform-digest.dto';
 import {omitBy, isUndefined} from "lodash";
+import {ClientDigest} from "./interfaces/server/digest.interface";
+import {GeneratedResponse} from "./interfaces/server/generated-response.interface";
+import {GenerateResponseOption} from "./interfaces/server/options.interface";
+import {VerifyPayload} from "./interfaces/server/payload.interface";
 
 export class ServerDigestAuth {
   public static analyze(header: string, allowQop: string[] | false): ClientDigest  {
@@ -79,17 +83,4 @@ export class ServerDigestAuth {
       throw new GenerateResponseException(GENERATE_RESPONSE_CODE_VALIDATE);
     }
   }
-}
-
-
-export interface GeneratedResponse extends ServerDigest {
-  raw: string
-}
-
-export interface GenerateResponseOption {
-  domain?: string, opaque?: string, stale?: string, algorithm?: string, qop?:string,
-}
-
-export interface VerifyPayload {
-  entryBody: string, method: string, uri: string
 }

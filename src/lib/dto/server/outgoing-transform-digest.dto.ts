@@ -1,6 +1,6 @@
-import {ServerDigest} from "../../header";
 import { Expose } from 'class-transformer';
 import { AddQuotes } from '../../decorators/add-quotes.decorator';
+import {ServerDigest} from "../../interfaces/server/digest.interface";
 
 export class OutgoingTransformDigestDto implements ServerDigest {
 

@@ -1,6 +1,6 @@
-import {ServerDigest} from "../../header";
 import { Expose } from 'class-transformer';
 import { IsOptional, IsString } from 'class-validator';
+import {ServerDigest} from "../../interfaces/server/digest.interface";
 
 export class OutgoingDigestDto implements ServerDigest {
 
