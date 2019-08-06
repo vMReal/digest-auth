@@ -1,5 +1,7 @@
 # Digest-Auth
 
+[![Build Status](https://travis-ci.com/vMReal/digest-auth.svg?branch=ci)](https://travis-ci.com/vMReal/digest-auth)
+
 ## Support
 
  Digest realization for **client** and **server**
