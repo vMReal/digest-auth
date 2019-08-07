@@ -1,6 +1,6 @@
 {
   "name": "@mreal/digest-auth",
-  "version": "0.1.0",
+  "version": "1.0.3",
   "description": "Digest realization for client and server. All quality of protection (qop): auth, auth-int. Encryption algorithms: MD5, MD5-sess. Based on typescript",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
