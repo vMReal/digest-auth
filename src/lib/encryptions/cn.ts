@@ -8,12 +8,11 @@ export class Cn {
     if (value > INT32_MAX_VALUE)
       return '00000000';
 
-    const buf = Buffer.allocUnsafe(4);
-    buf.writeInt32BE(value, 0);
-    return buf.toString('hex');
+    const hex = value.toString(16);
+    return '0'.repeat(8 - hex.length) + hex;
   }
 
-  public fromHex(value: string) {
+  public static fromHex(value: string) {
     return parseInt(value, 16);
   }
 }
