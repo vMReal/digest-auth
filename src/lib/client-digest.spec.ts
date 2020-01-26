@@ -1,8 +1,8 @@
 // tslint:disable:no-expression-statement
 import test from 'ava';
-import {ALGORITHM_MD5, ALGORITHM_MD5_SESS, QOP_AUTH, QOP_AUTH_INT} from './constants';
-import {ClientDigestAuth} from "./client-digest-auth";
 import {includes} from "lodash";
+import {ClientDigestAuth} from "./client-digest-auth";
+import {ALGORITHM_MD5, ALGORITHM_MD5_SESS, QOP_AUTH, QOP_AUTH_INT} from './constants';
 import { ServerDigestAuth } from './server-digest-auth';
 
 
@@ -87,6 +87,21 @@ test('analyze - auth-int + MD5', t => {
 test('analyze - auth-int + MD5 + opaque', t => {
   t.deepEqual(
     ClientDigestAuth.analyze(HEADER_AUTHINT_MD5_OPAQUE),
+    {
+      qop: QOP_AUTH_INT,
+      algorithm: ALGORITHM_MD5,
+      realm: TEST_REALM,
+      nonce: TEST_NONCE,
+      opaque: TEST_OPAQUE,
+    });
+})
+
+
+test('analyze - ISSUE-8', t => {
+  const res = ClientDigestAuth.analyze(`Digest qop="auth",algorithm=MD5,realm="monero-rpc",nonce="RfLCEIHjDR7DgKXvotSMMg==",stale=false, Digest qop="auth",algorithm=MD5-sess,realm="monero-rpc",nonce="RfLCEIHjDR7DgKXvotSMMg==",stale=false`);
+  t.log(res);
+  t.deepEqual(
+    res,
     {
       qop: QOP_AUTH_INT,
       algorithm: ALGORITHM_MD5,
