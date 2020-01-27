@@ -30,7 +30,9 @@
       { "ignore-prefix": ["console.", "process.exit", "validateSync"] }
     ],
     "no-if-statement": false,
-    "interface-over-type-literal": false
+    "interface-over-type-literal": false,
+    "member-access": false,
+    "max-classes-per-file": 3
     /* end tslint-immutable rules */
   }
 }

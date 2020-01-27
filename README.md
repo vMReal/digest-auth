@@ -306,3 +306,20 @@ Next use method `verifyBySecret` instead of `verifyByPassword`
 
 > recommendation to use "MD5-sess" algorithm for digest-auth.
 
+## Other
+
+### Multiple Authorization Header
+
+Both server and client function analyze support multiple authorization. But you must implement the business logic to choose the scheme yourself for your needs.
+
+```javascript
+const multipleAuthorization = ServerDigestAuth.analyze(headers['Authorization'], [QOP_AUTH_INT]);
+
+console.log(multipleAuthorization) // [ {scheme: 'Basic', raw: '....'}, { scheme: 'Digest', username="user", nonce="some-nonce", ...}]
+```
+
+```javascript
+const multipleAuthorization = ClientDigestAuth.analyze(headers['WWW-Authenticate'], true);
+
+console.log(multipleAuthorization) // [ {scheme: 'Basic', raw: '....'}, { scheme: 'Digest', username="user", nonce="some-nonce", ...}]
+```

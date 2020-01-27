@@ -1,11 +1,11 @@
 import {Expose} from "class-transformer";
 import {IsNumber, IsString, Max, Min} from "class-validator";
+import {CN_MAX_INT_VALUE} from "../../encryptions/cn";
 import {
   PayloadProtectionAuth,
   PayloadProtectionAuthInt,
   PayloadUnprotected
 } from "../../interfaces/client/payload.interface";
-import {CN_MAX_INT_VALUE} from "../../encryptions/cn";
 
 
 export class PayloadUnprotectedDto implements PayloadUnprotected {
@@ -18,6 +18,7 @@ export class PayloadUnprotectedDto implements PayloadUnprotected {
   uri: string;
 }
 
+// tslint:disable:variable-name
 export class PayloadProtectionAuthDto extends PayloadUnprotectedDto implements PayloadProtectionAuth {
   @Expose()
   @IsString()

@@ -49,7 +49,7 @@ export class ClientDigestAuth {
       if (multipleAuthentication)
         return analyzeChallenges;
 
-      const firstDigest = find(analyzeChallenges, {shceme: SCHEME_DIGEST}) as ServerDigest;
+      const firstDigest = find(analyzeChallenges, {scheme: SCHEME_DIGEST}) as ServerDigest;
       if (!firstDigest)
         throw new AnalyzeException(NOT_ALLOW_DIGEST);
 

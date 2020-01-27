@@ -6,6 +6,10 @@ import {ServerDigest} from "../../interfaces/client/digest.interface";
 export class IncomingDigestDto implements ServerDigest {
 
   @Expose()
+  @IsString()
+  scheme: string;
+
+  @Expose()
   @RemoveQuotes()
   @IsString()
   realm: string;
