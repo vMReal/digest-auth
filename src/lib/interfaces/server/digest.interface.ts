@@ -1,4 +1,5 @@
 export interface ClientDigest {
+  scheme: string,
   username: string;
   realm: string
   nonce: string,

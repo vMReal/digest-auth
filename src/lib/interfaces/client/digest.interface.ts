@@ -16,7 +16,8 @@ export interface ClientProtectedDigest extends ClientUnprotectedDigest {
 
 
 export interface ServerDigest {
-  realm: string
+  scheme: string,
+  realm: string,
   nonce: string,
   qop?: string,
   domain?: string,

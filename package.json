@@ -62,10 +62,12 @@
     "class-transformer": "^0.2.0",
     "class-validator": "^0.9.1",
     "crypto-js": "^3.1.9-1",
+    "lodash": "^4.17.15",
     "sha.js": "^2.4.11"
   },
   "devDependencies": {
     "@types/crypto-js": "^3.1.43",
+    "@types/lodash": "^4.14.149",
     "ava": "1.0.0-beta.7",
     "codecov": "^3.1.0",
     "cz-conventional-changelog": "^2.1.0",

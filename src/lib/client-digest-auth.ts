@@ -1,39 +1,59 @@
-import {Header} from "./header";
 import {validateSync} from "class-validator";
-import {Nonce} from "./encryptions/nonce";
-import {Response} from "./encryptions/response";
+import {find, pick} from "lodash";
 import {ALGORITHM_MD5, ALGORITHM_MD5_SESS, QOP_AUTH, QOP_AUTH_INT} from "./constants";
-import {HA2} from "./encryptions/h2";
-import {HA1} from "./encryptions/h1";
-import {ANALYZE_CODE_VALIDATE, AnalyzeException} from "./exceptions/analyze-exception";
 import {IncomingDigestDto} from "./dto/client/incoming-digest.dto";
-import {Cn} from "./encryptions/cn";
-import {Dto} from "./utils/dto";
+import {OutgoingProtectedDigestDto, OutgoingUnprotectedDigestDto} from "./dto/client/outgoing-digest.dto";
 import {
   OutgoingTransformProtectedDigestDto,
   OutgoingTransformUnprotectedDigestDto
 } from "./dto/client/outgoing-transform-digest.dto";
+import {PayloadProtectionAuthDto, PayloadProtectionAuthIntDto, PayloadUnprotectedDto} from "./dto/client/payload.dto";
+import {Cn} from "./encryptions/cn";
+import {HA1} from "./encryptions/h1";
+import {HA2} from "./encryptions/h2";
+import {Nonce} from "./encryptions/nonce";
+import {Response} from "./encryptions/response";
 import {
-  PayloadProtectionAuth,
-  PayloadProtectionAuthInt,
-  PayloadUnprotected
-} from "./interfaces/client/payload.interface";
-import {OutgoingProtectedDigestDto, OutgoingUnprotectedDigestDto} from "./dto/client/outgoing-digest.dto";
+  ANALYZE_CODE_VALIDATE,
+  AnalyzeException,
+  NOT_ALLOW_DIGEST
+} from './exceptions/analyze-exception';
+import { Header, SCHEME_DIGEST } from './header';
 import {ClientProtectedDigest, ClientUnprotectedDigest, ServerDigest} from "./interfaces/client/digest.interface";
 import {
   GeneratedProtectedResponse,
   GeneratedUnprotectedResponse
 } from "./interfaces/client/generated-response.interface";
-import {PayloadProtectionAuthDto, PayloadProtectionAuthIntDto, PayloadUnprotectedDto} from "./dto/client/payload.dto";
+import {
+  PayloadProtectionAuth,
+  PayloadProtectionAuthInt,
+  PayloadUnprotected
+} from "./interfaces/client/payload.interface";
+import {Dto} from "./utils/dto";
 
 export class ClientDigestAuth {
-  public static analyze(header: string): ServerDigest  {
+  public static analyze(header: string): ServerDigest
+  public static analyze(header: string, multipleAuthentication: true): ReadonlyArray<{readonly scheme: string, readonly raw: string} | ServerDigest>
+  public static analyze(header: string, multipleAuthentication: boolean = false): ReadonlyArray<{readonly scheme: string, readonly raw: string} | ServerDigest> | ServerDigest  {
     try {
-      const plainDigest = Header.parse(header);
-      const digest: ServerDigest = Dto.validate(IncomingDigestDto, plainDigest) as ServerDigest;
-      validateSync(digest, {})
+      const challenges = Header.parse(header);
+      const analyzeChallenges = challenges.map((challenge) => {
+        if (challenge.scheme !== SCHEME_DIGEST)
+          return {...pick(challenge, ['scheme', 'raw'])};
 
-      return {...digest};
+        const digest: ServerDigest = Dto.validate(IncomingDigestDto, challenge as unknown) as ServerDigest;
+        validateSync(digest, {});
+        return {... digest};
+      });
+
+      if (multipleAuthentication)
+        return analyzeChallenges;
+
+      const firstDigest = find(analyzeChallenges, {scheme: SCHEME_DIGEST}) as ServerDigest;
+      if (!firstDigest)
+        throw new AnalyzeException(NOT_ALLOW_DIGEST);
+
+      return firstDigest;
     } catch (e) {
       if (e instanceof AnalyzeException)
         throw  e;
@@ -72,7 +92,7 @@ export class ClientDigestAuth {
     );
   }
 
-  protected static generateQOP(serverDigest: ServerDigest & {qop: string}, username: string, password: string, payload: PayloadProtectionAuthInt): GeneratedProtectedResponse {
+  protected static generateQOP(serverDigest: ServerDigest & {readonly qop: string}, username: string, password: string, payload: PayloadProtectionAuthInt): GeneratedProtectedResponse {
     const cnonce = Nonce.generate();
     const nc = Cn.toHex(payload.counter);
     const algorithm: string = (payload.force_algorithm)
@@ -93,7 +113,7 @@ export class ClientDigestAuth {
       nonce: serverDigest.nonce,
       realm: serverDigest.realm,
       opaque: serverDigest.opaque,
-      algorithm: algorithm,
+      algorithm,
       qop: serverDigest.qop,
       uri: payload.uri,
       response,

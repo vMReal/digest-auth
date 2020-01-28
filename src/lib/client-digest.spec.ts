@@ -1,9 +1,10 @@
 // tslint:disable:no-expression-statement
 import test from 'ava';
-import {ALGORITHM_MD5, ALGORITHM_MD5_SESS, QOP_AUTH, QOP_AUTH_INT} from './constants';
-import {ClientDigestAuth} from "./client-digest-auth";
 import {includes} from "lodash";
+import {ClientDigestAuth} from "./client-digest-auth";
+import {ALGORITHM_MD5, ALGORITHM_MD5_SESS, QOP_AUTH, QOP_AUTH_INT} from './constants';
 import { ServerDigestAuth } from './server-digest-auth';
+import { SCHEME_DIGEST } from './header';
 
 
 const HEADER_UNPROTECTED = 'Digest realm="test-realm", nonce="test-nonce"';
@@ -29,9 +30,40 @@ test('analyze - unprotected', t => {
   t.deepEqual(
     ClientDigestAuth.analyze(HEADER_UNPROTECTED),
     {
+      scheme: SCHEME_DIGEST,
       realm: TEST_REALM,
       nonce: TEST_NONCE,
     });
+});
+
+test('analyze - multi auth header without multipleAuthentication option', t => {
+  t.deepEqual(
+    ClientDigestAuth.analyze(`Basic test,${HEADER_UNPROTECTED}, Test2 test="test"`),
+    {
+      scheme: SCHEME_DIGEST,
+      realm: TEST_REALM,
+      nonce: TEST_NONCE,
+    });
+});
+
+test('analyze - multi auth header with multipleAuthentication option', t => {
+  t.deepEqual(
+    ClientDigestAuth.analyze(`Basic test,${HEADER_UNPROTECTED}, Test2 test="test"`, true),
+    [
+      {
+        scheme: 'Basic',
+        raw: 'test'
+      },
+      {
+        scheme: SCHEME_DIGEST,
+        realm: TEST_REALM,
+        nonce: TEST_NONCE,
+      },
+      {
+        scheme: 'Test2',
+        raw: 'test="test"'
+      },
+    ]);
 });
 
 
@@ -39,6 +71,7 @@ test('analyze - unprotected + MD5', t => {
   t.deepEqual(
     ClientDigestAuth.analyze(HEADER_HEADER_UNPROTECTED_MD5),
     {
+      scheme: SCHEME_DIGEST,
       algorithm: 'MD5',
       realm: TEST_REALM,
       nonce: TEST_NONCE,
@@ -50,6 +83,7 @@ test('analyze - auth + MD5', t => {
   t.deepEqual(
     ClientDigestAuth.analyze(HEADER_AUTH_MD5),
     {
+      scheme: SCHEME_DIGEST,
       qop: QOP_AUTH,
       algorithm: ALGORITHM_MD5,
       realm: TEST_REALM,
@@ -63,6 +97,7 @@ test('analyze - auth + MD5-sess', t => {
   t.deepEqual(
     ClientDigestAuth.analyze(HEADER_AUTH_SESS),
     {
+      scheme: SCHEME_DIGEST,
       qop: QOP_AUTH,
       algorithm: ALGORITHM_MD5_SESS,
       realm: TEST_REALM,
@@ -76,6 +111,7 @@ test('analyze - auth-int + MD5', t => {
   t.deepEqual(
     ClientDigestAuth.analyze(HEADER_AUTHINT_MD5),
     {
+      scheme: SCHEME_DIGEST,
       qop: QOP_AUTH_INT,
       algorithm: ALGORITHM_MD5,
       realm: TEST_REALM,
@@ -88,6 +124,7 @@ test('analyze - auth-int + MD5 + opaque', t => {
   t.deepEqual(
     ClientDigestAuth.analyze(HEADER_AUTHINT_MD5_OPAQUE),
     {
+      scheme: SCHEME_DIGEST,
       qop: QOP_AUTH_INT,
       algorithm: ALGORITHM_MD5,
       realm: TEST_REALM,
@@ -95,7 +132,6 @@ test('analyze - auth-int + MD5 + opaque', t => {
       opaque: TEST_OPAQUE,
     });
 });
-
 
 /************** analyze ******************/
 /*
