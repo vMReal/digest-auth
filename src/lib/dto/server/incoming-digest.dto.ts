@@ -43,6 +43,7 @@ export class IncomingDigestDto implements ClientDigest {
   @Expose()
   @IsString()
   @IsOptional()
+  @RemoveQuotes()
   qop: string;
 
   @Expose()

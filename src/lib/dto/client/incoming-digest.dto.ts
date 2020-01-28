@@ -21,6 +21,7 @@ export class IncomingDigestDto implements ServerDigest {
 
   @Expose()
   @IsOptional()
+  @RemoveQuotes()
   @IsString()
   qop?: string;
 
@@ -38,7 +39,6 @@ export class IncomingDigestDto implements ServerDigest {
 
   @Expose()
   @IsOptional()
-  @RemoveQuotes()
   @IsString()
   stale?: string;
 
