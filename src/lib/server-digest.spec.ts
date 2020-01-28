@@ -6,12 +6,12 @@ import {includes} from "lodash";
 import { SCHEME_DIGEST } from './header';
 const HEADER_GET_QOPLESS_MD5 = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5", response="48388ab4ca0c46a73e4d2f23ccc7632e"';
 //const HEADER_GET_QOPLESS_SESS = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5-sess", cnonce="", response="02dfe2629099f3c569fc5cde9bf1e233"';
-const HEADER_GET_AUTH_MD5 = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5", qop=auth, nc=00000001, cnonce="test-cnonce", response="e524170b3e02dedaf6a1110131fb5a50", opaque="test-opaque"';
-const HEADER_GET_AUTH_SESS = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5-sess", qop=auth, nc=00000001, cnonce="test-cnonce", response="6f2b8d1c4fddae124e66f2d5980cee64", opaque="test-opaque"';
-const HEADER_POST_AUTH_MD5 = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5", qop=auth, nc=00000001, cnonce="test-cnonce", response="f0881ed8e522e40c0f56ee31e351636d", opaque="test-opaque"';
-const HEADER_POSTNESS_AUTH_MD5 = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5", qop=auth, nc=00000001, cnonce="test-cnonce", response="f0881ed8e522e40c0f56ee31e351636d", opaque="test-opaque"';
-const HEADER_POSTNESS_INT_MD5 = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5", qop=auth-int, nc=00000001, cnonce="test-cnonce", response="dda8edbd09a4e74f283f2b3d439bc7b6", opaque="test-opaque"';
-const HEADER_POSTNESS_INT_SESS = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5-sess", qop=auth-int, nc=00000001, cnonce="test-cnonce", response="d717aab31fbc3987322356a9faf0fd49", opaque="test-opaque"';
+const HEADER_GET_AUTH_MD5 = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5", qop="auth", nc=00000001, cnonce="test-cnonce", response="e524170b3e02dedaf6a1110131fb5a50", opaque="test-opaque"';
+const HEADER_GET_AUTH_SESS = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5-sess", qop="auth", nc=00000001, cnonce="test-cnonce", response="6f2b8d1c4fddae124e66f2d5980cee64", opaque="test-opaque"';
+const HEADER_POST_AUTH_MD5 = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5", qop="auth", nc=00000001, cnonce="test-cnonce", response="f0881ed8e522e40c0f56ee31e351636d", opaque="test-opaque"';
+const HEADER_POSTNESS_AUTH_MD5 = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5", qop="auth", nc=00000001, cnonce="test-cnonce", response="f0881ed8e522e40c0f56ee31e351636d", opaque="test-opaque"';
+const HEADER_POSTNESS_INT_MD5 = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5", qop="auth-int", nc=00000001, cnonce="test-cnonce", response="dda8edbd09a4e74f283f2b3d439bc7b6", opaque="test-opaque"';
+const HEADER_POSTNESS_INT_SESS = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5-sess", qop="auth-int", nc=00000001, cnonce="test-cnonce", response="d717aab31fbc3987322356a9faf0fd49", opaque="test-opaque"';
 
 const TEST_BODY = '{"key": "value"}';
 const TEST_PASS = 'pass';
@@ -175,7 +175,7 @@ test('generateResponse QOP(auth)', t => {
 
   t.true(includes(res.raw, `realm="${TEST_REALM}"`));
   t.true(includes(res.raw, `nonce="${res.nonce}"`));
-  t.true(includes(res.raw, `qop=${QOP_AUTH}`));
+  t.true(includes(res.raw, `qop="${QOP_AUTH}"`));
   t.true(includes(res.raw, `algorithm="${ALGORITHM_MD5}"`));
   t.true(includes(res.raw, `opaque="${TEST_OPAQUE}"`));
 });

@@ -13,6 +13,7 @@ export class OutgoingTransformDigestDto implements ServerDigest {
   nonce: string;
 
   @Expose()
+  @AddQuotes()
   qop?: string;
 
   @Expose()

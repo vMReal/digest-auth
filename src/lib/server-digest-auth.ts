@@ -35,10 +35,10 @@ export class ServerDigestAuth {
         const digest: IncomingDigestDto = plainToClass(IncomingDigestDto, challenge as unknown, {strategy: "excludeAll"});
         validateSync(digest, {})
 
-        if (allowQop === false && !isUndefined(challenge.qop))
+        if (allowQop === false && !isUndefined(digest.qop))
           throw new AnalyzeException(ANALYZE_CODE_NOT_SUPPORT_QOP);
 
-        if (allowQop !== false && !new Validator().isIn(challenge.qop, [...allowQop]))
+        if (allowQop !== false && !new Validator().isIn(digest.qop, [...allowQop]))
           throw new AnalyzeException(ANALYZE_CODE_NOT_SUPPORT_QOP);
 
         return {...digest};
