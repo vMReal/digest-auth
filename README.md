@@ -310,7 +310,11 @@ Next use method `verifyBySecret` instead of `verifyByPassword`
 
 ### Multiple Authorization Header
 
-Both server and client function analyze support multiple authorization. But you must implement the business logic to choose the scheme yourself for your needs.
+Both server and client function analyze support multiple authorization. 
+
+But you must implement the business logic to choose the scheme yourself for your needs.
+
+By default without option "multiple authorization" will return first found digest.
 
 ```javascript
 const multipleAuthorization = ServerDigestAuth.analyze(headers['Authorization'], [QOP_AUTH_INT]);

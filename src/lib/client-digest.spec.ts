@@ -36,6 +36,36 @@ test('analyze - unprotected', t => {
     });
 });
 
+test('analyze - multi auth header without multipleAuthentication option', t => {
+  t.deepEqual(
+    ClientDigestAuth.analyze(`Basic test,${HEADER_UNPROTECTED}, Test2 test="test"`),
+    {
+      scheme: SCHEME_DIGEST,
+      realm: TEST_REALM,
+      nonce: TEST_NONCE,
+    });
+});
+
+test('analyze - multi auth header with multipleAuthentication option', t => {
+  t.deepEqual(
+    ClientDigestAuth.analyze(`Basic test,${HEADER_UNPROTECTED}, Test2 test="test"`, true),
+    [
+      {
+        scheme: 'Basic',
+        raw: 'test'
+      },
+      {
+        scheme: SCHEME_DIGEST,
+        realm: TEST_REALM,
+        nonce: TEST_NONCE,
+      },
+      {
+        scheme: 'Test2',
+        raw: 'test="test"'
+      },
+    ]);
+});
+
 
 test('analyze - unprotected + MD5', t => {
   t.deepEqual(
