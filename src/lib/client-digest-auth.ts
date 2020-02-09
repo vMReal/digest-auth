@@ -14,6 +14,7 @@ import {HA2} from "./encryptions/h2";
 import {Nonce} from "./encryptions/nonce";
 import {Response} from "./encryptions/response";
 import {
+  ANALYZE_CODE_UNEXPECTED,
   ANALYZE_CODE_VALIDATE,
   AnalyzeException,
   NOT_ALLOW_DIGEST
@@ -42,7 +43,10 @@ export class ClientDigestAuth {
           return {...pick(challenge, ['scheme', 'raw'])};
 
         const digest: ServerDigest = Dto.validate(IncomingDigestDto, challenge as unknown) as ServerDigest;
-        validateSync(digest, {});
+        const validationRes = validateSync(digest, {});
+        if (validationRes.length)
+          throw new AnalyzeException(ANALYZE_CODE_VALIDATE, validationRes);
+
         return {... digest};
       });
 
@@ -58,7 +62,7 @@ export class ClientDigestAuth {
       if (e instanceof AnalyzeException)
         throw  e;
 
-      throw new AnalyzeException(ANALYZE_CODE_VALIDATE);
+      throw new AnalyzeException(ANALYZE_CODE_UNEXPECTED);
     }
   }
 

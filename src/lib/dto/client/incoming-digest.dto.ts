@@ -21,6 +21,7 @@ export class IncomingDigestDto implements ServerDigest {
 
   @Expose()
   @IsOptional()
+  @RemoveQuotes()
   @IsString()
   qop?: string;
 

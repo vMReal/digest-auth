@@ -30,6 +30,7 @@ export class IncomingDigestDto implements ClientDigest {
   cnonce: string;
 
   @Expose()
+  @RemoveQuotes()
   @IsString()
   @IsOptional()
   nc: string;
@@ -41,6 +42,7 @@ export class IncomingDigestDto implements ClientDigest {
   uri: string;
 
   @Expose()
+  @RemoveQuotes()
   @IsString()
   @IsOptional()
   qop: string;

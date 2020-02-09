@@ -13,6 +13,7 @@ const HEADER_AUTH_MD5 = 'Digest realm="test-realm", nonce="test-nonce", algorith
 const HEADER_AUTH_SESS = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5-sess", qop=auth';
 const HEADER_AUTHINT_MD5 = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5", qop=auth-int';
 const HEADER_AUTHINT_MD5_OPAQUE = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5", qop=auth-int, opaque="test-opaque"';
+const HEADER_AUTHINT_MD5_OPAQUE_INCORRECT_FORMAT = 'Digest realm=test-realm", nonce="test-nonce, algorithm="MD5", qop="auth-int", opaque=test-opaque"';
 // @TODO add stale and domain
 
 
@@ -133,6 +134,22 @@ test('analyze - auth-int + MD5 + opaque', t => {
     });
 });
 
+/*
+ * @Link RFC-7616 (quoted string) https://tools.ietf.org/html/rfc7616#section-3.3
+ */
+test('analyze - You should not assume that headers you parse follow rules (quoted string) according rfc7616#3.3', t => {
+  t.deepEqual(
+    ClientDigestAuth.analyze(HEADER_AUTHINT_MD5_OPAQUE_INCORRECT_FORMAT),
+    {
+      scheme: SCHEME_DIGEST,
+      qop: QOP_AUTH_INT,
+      algorithm: ALGORITHM_MD5,
+      realm: TEST_REALM,
+      nonce: TEST_NONCE,
+      opaque: TEST_OPAQUE,
+    });
+});
+
 /************** analyze ******************/
 /*
  *
@@ -200,7 +217,7 @@ test('generateUnprotected protected auth)', t => {
   t.true(includes(res.raw, `nc=${res.nc}`));
   t.true(includes(res.raw, `qop=${res.qop}`));
   t.true(includes(res.raw, `uri="${res.uri}"`));
-  t.true(includes(res.raw, `algorithm="${res.algorithm}"`));
+  t.true(includes(res.raw, `algorithm=${res.algorithm}`));
   t.true(includes(res.raw, `response="${res.response}"`));
 });
 
@@ -244,7 +261,7 @@ test('generateUnprotected protected auth-int)', t => {
   t.true(includes(res.raw, `nc=${res.nc}`));
   t.true(includes(res.raw, `qop=${res.qop}`));
   t.true(includes(res.raw, `uri="${res.uri}"`));
-  t.true(includes(res.raw, `algorithm="${res.algorithm}"`));
+  t.true(includes(res.raw, `algorithm=${res.algorithm}`));
   t.true(includes(res.raw, `response="${res.response}"`));
 });
 
@@ -341,7 +358,7 @@ test('generateProtectionAuth correct force server algorithm md5-sess)', t => {
   });
 
   t.is(res.algorithm, ALGORITHM_MD5_SESS);
-  t.true(includes(res.raw, `algorithm="${res.algorithm}"`));
+  t.true(includes(res.raw, `algorithm=${res.algorithm}`));
 });
 
 test('generateProtectionAuth correct force server algorithm md5)', t => {
@@ -351,6 +368,39 @@ test('generateProtectionAuth correct force server algorithm md5)', t => {
     method: 'POST', uri: TEST_URI, counter: 1, force_algorithm: ALGORITHM_MD5  });
 
   t.is(res.algorithm, ALGORITHM_MD5);
-  t.true(includes(res.raw, `algorithm="${res.algorithm}"`));
+  t.true(includes(res.raw, `algorithm=${res.algorithm}`));
+});
+
+
+/*
+ * @Link RFC-7616 (quoted string) https://tools.ietf.org/html/rfc7616#section-3.4
+ */
+test('generateProtectionAuth MUST generate the quoted string syntax values for: username, realm, nonce, uri, response, cnonce, and opaque', t => {
+
+  const digest = ClientDigestAuth.analyze(HEADER_AUTHINT_MD5_OPAQUE);
+  const res = ClientDigestAuth.generateProtectionAuthInt(digest, TEST_USER, TEST_PASS, {
+    method: 'POST', uri: TEST_URI, counter: 1, force_algorithm: ALGORITHM_MD5, entryBody: 'test'  });
+
+  t.true(includes(res.raw, `username="${TEST_USER}"`));
+  t.true(includes(res.raw, `realm="${TEST_REALM}"`));
+  t.true(includes(res.raw, `nonce="${res.nonce}"`));
+  t.true(includes(res.raw, `qop=${res.qop}`));
+  t.true(includes(res.raw, `uri="${res.uri}"`));
+  t.true(includes(res.raw, `response="${res.response}"`));
+  t.true(includes(res.raw, `opaque="${res.opaque}"`));
+});
+
+/*
+ * @Link RFC-7616 (quoted string) https://tools.ietf.org/html/rfc7616#section-3.4
+ */
+test('generateProtectionAuth MUST NOT generate the quoted string syntax values for:  algorithm, qop, and nc', t => {
+
+  const digest = ClientDigestAuth.analyze(HEADER_AUTHINT_MD5_OPAQUE);
+  const res = ClientDigestAuth.generateProtectionAuthInt(digest, TEST_USER, TEST_PASS, {
+    method: 'POST', uri: TEST_URI, counter: 1, force_algorithm: ALGORITHM_MD5, entryBody: 'test'  });
+
+  t.true(includes(res.raw, `algorithm=${res.algorithm}`));
+  t.true(includes(res.raw, `qop=${res.qop}`));
+  t.true(includes(res.raw, `nc=${res.nc}`));
 });
 
