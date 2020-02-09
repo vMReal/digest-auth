@@ -1,10 +1,13 @@
 // tslint:disable:no-expression-statement
 import test from 'ava';
 import { includes } from "lodash";
+import { ClientDigestAuth } from './client-digest-auth';
 import { ALGORITHM_MD5, QOP_AUTH, QOP_AUTH_INT } from './constants';
+import { ANALYZE_CODE_VALIDATE } from './exceptions/analyze-exception';
 import { SCHEME_DIGEST } from './header';
 import { ServerDigestAuth } from "./server-digest-auth";
 
+const HEADER_VALIDATION_PROBLEM = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm=MD5';
 const HEADER_GET_QOPLESS_MD5 = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm=MD5, response="48388ab4ca0c46a73e4d2f23ccc7632e"';
 const HEADER_GET_AUTH_MD5 = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth, algorithm=MD5, qop="auth", nc=00000001, cnonce="test-cnonce", response=e524170b3e02dedaf6a1110131fb5a50", opaque="test-opaque"';
 const HEADER_GET_AUTH_MD5_INCORRECT_QUOTES = 'Digest username=user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5", qop="auth", nc="00000001", cnonce="test-cnonce", response="e524170b3e02dedaf6a1110131fb5a50", opaque="test-opaque"';
@@ -41,6 +44,9 @@ test('analyze', t => {
     });
 });
 
+test('analyze - validation', t => {
+  t.throws(() => ClientDigestAuth.analyze(HEADER_VALIDATION_PROBLEM), ANALYZE_CODE_VALIDATE);
+});
 
 test('analyze multi auth with multi false', t => {
   t.deepEqual(
@@ -200,7 +206,6 @@ test('generateResponse QOP(auth)', t => {
   t.true(includes(res.raw, `algorithm=${ALGORITHM_MD5}`));
   t.true(includes(res.raw, `opaque="${TEST_OPAQUE}"`));
 });
-
 
 /*
  * @Link RFC-7616 (quoted string) https://tools.ietf.org/html/rfc7616#section-3.3

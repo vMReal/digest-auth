@@ -3,11 +3,13 @@ import test from 'ava';
 import {includes} from "lodash";
 import {ClientDigestAuth} from "./client-digest-auth";
 import {ALGORITHM_MD5, ALGORITHM_MD5_SESS, QOP_AUTH, QOP_AUTH_INT} from './constants';
-import { ServerDigestAuth } from './server-digest-auth';
+import { ANALYZE_CODE_VALIDATE } from './exceptions/analyze-exception';
 import { SCHEME_DIGEST } from './header';
+import { ServerDigestAuth } from './server-digest-auth';
 
 
 const HEADER_UNPROTECTED = 'Digest realm="test-realm", nonce="test-nonce"';
+const HEADER_UNPROTECTED_VALIDATION_PROBLEM = 'Digest realm="test-realm"';
 const HEADER_HEADER_UNPROTECTED_MD5 = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5"';
 const HEADER_AUTH_MD5 = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5", qop=auth';
 const HEADER_AUTH_SESS = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5-sess", qop=auth';
@@ -35,6 +37,10 @@ test('analyze - unprotected', t => {
       realm: TEST_REALM,
       nonce: TEST_NONCE,
     });
+});
+
+test('analyze - validation', t => {
+  t.throws(() => ClientDigestAuth.analyze(HEADER_UNPROTECTED), ANALYZE_CODE_VALIDATE);
 });
 
 test('analyze - multi auth header without multipleAuthentication option', t => {
