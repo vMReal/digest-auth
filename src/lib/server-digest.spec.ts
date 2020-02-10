@@ -7,7 +7,7 @@ import { ANALYZE_CODE_VALIDATE } from './exceptions/analyze-exception';
 import { SCHEME_DIGEST } from './header';
 import { ServerDigestAuth } from "./server-digest-auth";
 
-const HEADER_VALIDATION_PROBLEM = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm=MD5';
+const HEADER_VALIDATION_PROBLEM = 'Digest realm="test-realm", uri="/auth", algorithm=MD5';
 const HEADER_GET_QOPLESS_MD5 = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm=MD5, response="48388ab4ca0c46a73e4d2f23ccc7632e"';
 const HEADER_GET_AUTH_MD5 = 'Digest username="user", realm="test-realm", nonce="test-nonce", uri="/auth, algorithm=MD5, qop="auth", nc=00000001, cnonce="test-cnonce", response=e524170b3e02dedaf6a1110131fb5a50", opaque="test-opaque"';
 const HEADER_GET_AUTH_MD5_INCORRECT_QUOTES = 'Digest username=user", realm="test-realm", nonce="test-nonce", uri="/auth", algorithm="MD5", qop="auth", nc="00000001", cnonce="test-cnonce", response="e524170b3e02dedaf6a1110131fb5a50", opaque="test-opaque"';

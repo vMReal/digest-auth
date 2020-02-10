@@ -32,7 +32,8 @@
     "no-if-statement": false,
     "interface-over-type-literal": false,
     "member-access": false,
-    "max-classes-per-file": 3
+    "max-classes-per-file": 3,
+    "no-submodule-imports": false
     /* end tslint-immutable rules */
   }
 }

@@ -9,7 +9,7 @@ import { ServerDigestAuth } from './server-digest-auth';
 
 
 const HEADER_UNPROTECTED = 'Digest realm="test-realm", nonce="test-nonce"';
-const HEADER_UNPROTECTED_VALIDATION_PROBLEM = 'Digest realm="test-realm"';
+const HEADER_VALIDATION_PROBLEM = 'Digest algorithm="MD5"';
 const HEADER_HEADER_UNPROTECTED_MD5 = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5"';
 const HEADER_AUTH_MD5 = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5", qop=auth';
 const HEADER_AUTH_SESS = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5-sess", qop=auth';
@@ -40,7 +40,7 @@ test('analyze - unprotected', t => {
 });
 
 test('analyze - validation', t => {
-  t.throws(() => ClientDigestAuth.analyze(HEADER_UNPROTECTED), ANALYZE_CODE_VALIDATE);
+  t.throws(() => ClientDigestAuth.analyze(HEADER_VALIDATION_PROBLEM), ANALYZE_CODE_VALIDATE);
 });
 
 test('analyze - multi auth header without multipleAuthentication option', t => {
@@ -368,13 +368,18 @@ test('generateProtectionAuth correct force server algorithm md5-sess)', t => {
 });
 
 test('generateProtectionAuth correct force server algorithm md5)', t => {
+  try {
+    const digest = ClientDigestAuth.analyze(HEADER_AUTH_SESS);
+    const res = ClientDigestAuth.generateProtectionAuth(digest, TEST_USER, TEST_PASS, {
+      method: 'POST', uri: TEST_URI, counter: 1, force_algorithm: ALGORITHM_MD5
+    });
 
-  const digest = ClientDigestAuth.analyze(HEADER_AUTH_SESS);
-  const res = ClientDigestAuth.generateProtectionAuth(digest, TEST_USER, TEST_PASS, {
-    method: 'POST', uri: TEST_URI, counter: 1, force_algorithm: ALGORITHM_MD5  });
+    t.is(res.algorithm, ALGORITHM_MD5);
+    t.true(includes(res.raw, `algorithm=${res.algorithm}`))
+  } catch (e) {
+    throw Error(JSON.stringify(e));
+  }
 
-  t.is(res.algorithm, ALGORITHM_MD5);
-  t.true(includes(res.raw, `algorithm=${res.algorithm}`));
 });
 
 
