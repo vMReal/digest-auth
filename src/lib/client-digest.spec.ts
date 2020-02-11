@@ -8,13 +8,13 @@ import { SCHEME_DIGEST } from './header';
 import { ServerDigestAuth } from './server-digest-auth';
 
 
-const HEADER_UNPROTECTED = 'Digest realm="test-realm", nonce="test-nonce"';
+const HEADER_UNPROTECTED = 'Digest realm="test-realm", nonce="tes t-no{n=ce"';
 const HEADER_VALIDATION_PROBLEM = 'Digest algorithm="MD5"';
-const HEADER_HEADER_UNPROTECTED_MD5 = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5"';
-const HEADER_AUTH_MD5 = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5", qop=auth';
-const HEADER_AUTH_SESS = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5-sess", qop=auth';
-const HEADER_AUTHINT_MD5 = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5", qop=auth-int';
-const HEADER_AUTHINT_MD5_OPAQUE = 'Digest realm="test-realm", nonce="test-nonce", algorithm="MD5", qop=auth-int, opaque="test-opaque"';
+const HEADER_HEADER_UNPROTECTED_MD5 = 'Digest realm="test-realm", nonce="tes t-no{n=ce", algorithm="MD5"';
+const HEADER_AUTH_MD5 = 'Digest realm="test-realm", nonce="tes t-no{n=ce", algorithm="MD5", qop=auth';
+const HEADER_AUTH_SESS = 'Digest realm="test-realm", nonce="tes t-no{n=ce", algorithm="MD5-sess", qop=auth';
+const HEADER_AUTHINT_MD5 = 'Digest realm="test-realm", nonce="tes t-no{n=ce", algorithm="MD5", qop=auth-int';
+const HEADER_AUTHINT_MD5_OPAQUE = 'Digest realm="test-realm", nonce="tes t-no{n=ce", algorithm="MD5", qop=auth-int, opaque="test-opaque"';
 const HEADER_AUTHINT_MD5_OPAQUE_INCORRECT_FORMAT = 'Digest realm=test-realm", nonce="test-nonce, algorithm="MD5", qop="auth-int", opaque=test-opaque"';
 // @TODO add stale and domain
 
@@ -23,7 +23,7 @@ const TEST_BODY = '{"key": "value"}';
 const TEST_PASS = 'pass';
 const TEST_USER = 'user';
 const TEST_REALM = 'test-realm';
-const TEST_NONCE = 'test-nonce';
+const TEST_NONCE = 'tes t-no{n=ce';
 //const TEST_CNONCE = 'test-cnonce';
 const TEST_NC = '00000001';
 const TEST_URI = '/auth';
@@ -221,7 +221,7 @@ test('generateUnprotected protected auth)', t => {
   t.true(includes(res.raw, `realm="${TEST_REALM}"`));
   t.true(includes(res.raw, `nonce="${res.nonce}"`));
   t.true(includes(res.raw, `nc=${res.nc}`));
-  t.true(includes(res.raw, `qop=${res.qop}`));
+  t.true(includes(res.raw, `qop="${res.qop}"`));
   t.true(includes(res.raw, `uri="${res.uri}"`));
   t.true(includes(res.raw, `algorithm=${res.algorithm}`));
   t.true(includes(res.raw, `response="${res.response}"`));
@@ -265,7 +265,7 @@ test('generateUnprotected protected auth-int)', t => {
   t.true(includes(res.raw, `realm="${TEST_REALM}"`));
   t.true(includes(res.raw, `nonce="${res.nonce}"`));
   t.true(includes(res.raw, `nc=${res.nc}`));
-  t.true(includes(res.raw, `qop=${res.qop}`));
+  t.true(includes(res.raw, `qop="${res.qop}"`));
   t.true(includes(res.raw, `uri="${res.uri}"`));
   t.true(includes(res.raw, `algorithm=${res.algorithm}`));
   t.true(includes(res.raw, `response="${res.response}"`));
@@ -293,7 +293,7 @@ test('generateProtectionAuthInt correct force server unprotected QOP)', t => {
   });
 
   t.is(res.qop, QOP_AUTH_INT);
-  t.true(includes(res.raw, `qop=${res.qop}`));
+  t.true(includes(res.raw, `qop="${res.qop}"`));
 });
 
 test('generateProtectionAuthInt correct force server auth QOP)', t => {
@@ -304,7 +304,7 @@ test('generateProtectionAuthInt correct force server auth QOP)', t => {
   });
 
   t.is(res.qop, QOP_AUTH_INT);
-  t.true(includes(res.raw, `qop=${res.qop}`));
+  t.true(includes(res.raw, `qop="${res.qop}"`));
 });
 
 
@@ -316,7 +316,7 @@ test('generateProtectionAuth correct force server unprotected QOP)', t => {
   });
 
   t.is(res.qop, QOP_AUTH);
-  t.true(includes(res.raw, `qop=${res.qop}`));
+  t.true(includes(res.raw, `qop="${res.qop}"`));
 });
 
 test('generateProtectionAuth correct force server auth-int QOP)', t => {
@@ -327,7 +327,7 @@ test('generateProtectionAuth correct force server auth-int QOP)', t => {
   });
 
   t.is(res.qop, QOP_AUTH);
-  t.true(includes(res.raw, `qop=${res.qop}`));
+  t.true(includes(res.raw, `qop="${res.qop}"`));
 });
 
 

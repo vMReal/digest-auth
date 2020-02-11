@@ -42,7 +42,7 @@ export class Header {
       .replace(/\,\s/gm, ',')
       .split(',')
       .reduce((res, param) => {
-        const pair = param.split('=', 2);
+        const pair = param.replace('=', '{{=}}').split('{{=}}');
         return {
           ...res,
           [first(pair) || 'unknown']: last(pair) || 'unknown'

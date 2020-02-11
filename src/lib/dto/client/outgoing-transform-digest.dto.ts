@@ -41,6 +41,7 @@ export class OutgoingTransformProtectedDigestDto extends OutgoingTransformUnprot
   uri: string;
 
   @Expose()
+  @AddQuotes()
   qop: string;
 
   @Expose()

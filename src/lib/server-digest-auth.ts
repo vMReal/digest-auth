@@ -38,7 +38,7 @@ export class ServerDigestAuth {
 
         const digest: IncomingDigestDto = Dto.validate(IncomingDigestDto, challenge as unknown) as IncomingDigestDto;
 
-        if (allowQop === false && !isUndefined(challenge.qop))
+        if (allowQop === false && !isUndefined(digest.qop))
           throw new AnalyzeException(ANALYZE_CODE_NOT_SUPPORT_QOP);
 
         if (allowQop !== false && !new Validator().isIn(digest.qop, [...allowQop]))

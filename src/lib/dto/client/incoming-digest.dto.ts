@@ -39,7 +39,6 @@ export class IncomingDigestDto implements ServerDigest {
 
   @Expose()
   @IsOptional()
-  @RemoveQuotes()
   @IsString()
   stale?: string;
 

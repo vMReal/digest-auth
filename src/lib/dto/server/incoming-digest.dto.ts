@@ -45,6 +45,7 @@ export class IncomingDigestDto implements ClientDigest {
   @RemoveQuotes()
   @IsString()
   @IsOptional()
+  @RemoveQuotes()
   qop: string;
 
   @Expose()
