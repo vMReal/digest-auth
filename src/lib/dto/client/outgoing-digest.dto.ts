@@ -45,6 +45,7 @@ export class OutgoingProtectedDigestDto extends OutgoingUnprotectedDigestDto imp
   algorithm: string;
 
   @Expose()
+  @IsOptional()
   @IsString()
   opaque?: string;
 }

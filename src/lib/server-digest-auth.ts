@@ -1,5 +1,5 @@
 import {plainToClass} from "class-transformer";
-import {validateSync, Validator} from "class-validator";
+import {Validator} from "class-validator";
 import { find, isUndefined, omitBy, pick } from 'lodash';
 import {ALGORITHM_MD5_SESS, QOP_AUTH_INT} from "./constants";
 import {IncomingDigestDto} from "./dto/server/incoming-digest.dto";
@@ -10,17 +10,21 @@ import {HA2} from "./encryptions/h2";
 import {Nonce} from "./encryptions/nonce";
 import {Response} from "./encryptions/response";
 import {
-  ANALYZE_CODE_NOT_SUPPORT_QOP,
-  ANALYZE_CODE_VALIDATE,
+  ANALYZE_CODE_NOT_SUPPORT_QOP, ANALYZE_CODE_UNEXPECTED,
   AnalyzeException,
   NOT_ALLOW_DIGEST
 } from './exceptions/analyze-exception';
-import {GENERATE_RESPONSE_CODE_VALIDATE, GenerateResponseException} from "./exceptions/generate-response.exception";
-import { Header, SCHEME_DIGEST } from './header';
+import { BaseException } from './exceptions/base-exception';
+import {
+  GENERATE_RESPONSE_CODE_UNEXPECTED,
+  GenerateResponseException
+} from './exceptions/generate-response.exception';
+import { Header, SCHEME_DIGEST } from './header';;
 import {ClientDigest} from "./interfaces/server/digest.interface";
 import {GeneratedResponse} from "./interfaces/server/generated-response.interface";
 import {GenerateResponseOption} from "./interfaces/server/options.interface";
 import {VerifyPayload} from "./interfaces/server/payload.interface";
+import { Dto } from './utils/dto';
 
 export class ServerDigestAuth {
   public static analyze(header: string, allowQop: ReadonlyArray<string> | false): ClientDigest
@@ -32,8 +36,7 @@ export class ServerDigestAuth {
         if (challenge.scheme !== SCHEME_DIGEST)
           return {...pick(challenge, ['scheme', 'raw'])};
 
-        const digest: IncomingDigestDto = plainToClass(IncomingDigestDto, challenge as unknown, {strategy: "excludeAll"});
-        validateSync(digest, {})
+        const digest: IncomingDigestDto = Dto.validate(IncomingDigestDto, challenge as unknown) as IncomingDigestDto;
 
         if (allowQop === false && !isUndefined(digest.qop))
           throw new AnalyzeException(ANALYZE_CODE_NOT_SUPPORT_QOP);
@@ -56,7 +59,7 @@ export class ServerDigestAuth {
       if (e instanceof AnalyzeException)
         throw  e;
 
-      throw new AnalyzeException(ANALYZE_CODE_VALIDATE);
+      throw new AnalyzeException(ANALYZE_CODE_UNEXPECTED);
     }
   }
 
@@ -91,9 +94,7 @@ export class ServerDigestAuth {
         nonce: Nonce.generate()
       };
 
-      const digest: OutgoingDigestDto = plainToClass(OutgoingDigestDto, plainDigest, {strategy: "excludeAll"});
-      validateSync(digest, {});
-
+      const digest: OutgoingDigestDto = Dto.validate(OutgoingDigestDto, plainDigest as unknown) as OutgoingDigestDto;
       const finalDigest: OutgoingTransformDigestDto = plainToClass(OutgoingTransformDigestDto, plainDigest, {strategy: "excludeAll"});
 
       return {
@@ -101,7 +102,10 @@ export class ServerDigestAuth {
         raw: Header.generate(omitBy(finalDigest, isUndefined))
       }
     } catch (e) {
-      throw new GenerateResponseException(GENERATE_RESPONSE_CODE_VALIDATE);
+      if (e instanceof BaseException)
+        throw  e;
+
+      throw new GenerateResponseException(GENERATE_RESPONSE_CODE_UNEXPECTED);
     }
   }
 }

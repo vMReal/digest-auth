@@ -1,4 +1,3 @@
-import {validateSync} from "class-validator";
 import {find, pick} from "lodash";
 import {ALGORITHM_MD5, ALGORITHM_MD5_SESS, QOP_AUTH, QOP_AUTH_INT} from "./constants";
 import {IncomingDigestDto} from "./dto/client/incoming-digest.dto";
@@ -14,10 +13,11 @@ import {HA2} from "./encryptions/h2";
 import {Nonce} from "./encryptions/nonce";
 import {Response} from "./encryptions/response";
 import {
-  ANALYZE_CODE_VALIDATE,
+  ANALYZE_CODE_UNEXPECTED,
   AnalyzeException,
   NOT_ALLOW_DIGEST
 } from './exceptions/analyze-exception';
+import { BaseException } from './exceptions/base-exception';
 import { Header, SCHEME_DIGEST } from './header';
 import {ClientProtectedDigest, ClientUnprotectedDigest, ServerDigest} from "./interfaces/client/digest.interface";
 import {
@@ -42,7 +42,7 @@ export class ClientDigestAuth {
           return {...pick(challenge, ['scheme', 'raw'])};
 
         const digest: ServerDigest = Dto.validate(IncomingDigestDto, challenge as unknown) as ServerDigest;
-        validateSync(digest, {});
+
         return {... digest};
       });
 
@@ -55,10 +55,10 @@ export class ClientDigestAuth {
 
       return firstDigest;
     } catch (e) {
-      if (e instanceof AnalyzeException)
+      if (e instanceof BaseException)
         throw  e;
 
-      throw new AnalyzeException(ANALYZE_CODE_VALIDATE);
+      throw new AnalyzeException(ANALYZE_CODE_UNEXPECTED);
     }
   }
 
