@@ -1,6 +1,8 @@
 # Digest-Auth
 
 [![Build Status](https://travis-ci.com/vMReal/digest-auth.svg?branch=master)](https://travis-ci.com/vMReal/digest-auth)
+[![Codecov](https://codecov.io/gh/vMReal/digest-auth/branch/master/graph/badge.svg)](https://codecov.io/gh/vMReal/digest-auth)
+[![Version](https://img.shields.io/npm/v/@mreal/digest-auth.svg)](https://npmjs.org/package/@mreal/digest-auth)
 
 ## Support
 
