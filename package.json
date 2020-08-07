@@ -59,7 +59,7 @@
     "node": ">=8.9"
   },
   "dependencies": {
-    "class-transformer": "^0.2.0",
+    "class-transformer": "^0.3.1",
     "class-validator": "^0.9.1",
     "crypto-js": "^3.1.9-1",
     "lodash": "^4.17.15",
