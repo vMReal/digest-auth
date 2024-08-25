@@ -18,7 +18,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - run: npm ci
-      - run: npm cov
+      - run: npm run cov
 
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
