@@ -23,9 +23,6 @@ jobs:
       - name: Tests and Lint
         run: npm run test
 
-      - name: Coverage check
-        run: npm run cov:check
-
       - name: Generate coverage report
         run: npm run cov:prepare
 
@@ -38,3 +35,6 @@ jobs:
           fail_ci_if_error: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Coverage check
+        run: npm run cov:check
