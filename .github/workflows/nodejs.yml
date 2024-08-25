@@ -16,12 +16,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - run: npm ci
-      - run: npm run cov
-
-      - name: Upload test results to Codecov
-        if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+      - run: npm test
+      - run: npm run cov:check
+      - run: npx nyc report --reporter=lcov | npx codecov
