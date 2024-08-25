@@ -16,9 +16,25 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          token: ${{ secrets.CODECOV_TOKEN }}
 
-      - run: npm ci
-      - run: npm test
-      - run: npm run cov:check
-      - run: npx nyc report --reporter=lcov | npx codecov
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Tests and Lint
+        run: npm run test
+
+      - name: Coverage check
+        run: npm run cov:check
+
+      - name: Generate coverage report
+        run: npm run cov:prepare
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.lcov
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
