@@ -89,7 +89,8 @@
   },
   "nyc": {
     "exclude": [
-      "**/*.spec.js"
+      "**/*.spec.js",
+      "eslint.config.mjs"
     ]
   }
 }
