@@ -27,6 +27,6 @@ test('Dto:validate validate with transform option returns instanceof a Dto', t =
 });
 
 test('Dto:validate with invalid payload throws exception with the validate code', t => {
-  t.throws(() => Dto.validate(Test, {field: 'string'}), BASE_CODE_VALIDATE);
+  t.is(t.throws(() => Dto.validate(Test, {field: 'string'})).message, BASE_CODE_VALIDATE);
 })
 

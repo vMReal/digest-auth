@@ -1,5 +1,5 @@
 import {plainToClass} from "class-transformer";
-import {Validator} from "class-validator";
+import {isIn} from "class-validator";
 import { find, isUndefined, omitBy, pick } from 'lodash';
 import {ALGORITHM_MD5_SESS, QOP_AUTH_INT} from "./constants";
 import {IncomingDigestDto} from "./dto/server/incoming-digest.dto";
@@ -41,7 +41,7 @@ export class ServerDigestAuth {
         if (allowQop === false && !isUndefined(digest.qop))
           throw new AnalyzeException(ANALYZE_CODE_NOT_SUPPORT_QOP);
 
-        if (allowQop !== false && !new Validator().isIn(digest.qop, [...allowQop]))
+        if (allowQop !== false && !isIn(digest.qop, [...allowQop]))
           throw new AnalyzeException(ANALYZE_CODE_NOT_SUPPORT_QOP);
 
         return {...digest};

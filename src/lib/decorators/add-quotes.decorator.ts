@@ -2,10 +2,10 @@ import { Transform } from 'class-transformer';
 import {isString} from "lodash";
 
 export function AddQuotes() {
-  return Transform((value: string) => {
-    if (!isString(value))
-      return value;
+  return Transform((params) => {
+    if (!isString(params.value))
+      return params.value;
 
-    return `"${value}"`;
+    return `"${params.value}"`;
   });
 }

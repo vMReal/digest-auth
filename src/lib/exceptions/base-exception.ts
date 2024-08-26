@@ -1,4 +1,5 @@
-import { ValidationError } from 'class-validator/validation/ValidationError';
+import { ValidationError } from 'class-validator';
+
 
 export class BaseException extends Error {
 
