@@ -39,7 +39,10 @@ test('analyze - unprotected', t => {
 });
 
 test('analyze - validation', t => {
-  t.throws(() => ClientDigestAuth.analyze(HEADER_VALIDATION_PROBLEM), ANALYZE_CODE_VALIDATE);
+  t.is(
+    t.throws(() => ClientDigestAuth.analyze(HEADER_VALIDATION_PROBLEM)).message,
+    ANALYZE_CODE_VALIDATE
+  );
 });
 
 test('analyze - multi auth header without multipleAuthentication option', t => {
