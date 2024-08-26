@@ -10,7 +10,7 @@ export class Dto {
 
   public static validate<T extends object, V>(dto:  ClassConstructor<T>, data: V, transform?: undefined): V
   public static validate<T extends object, V>(dto:  ClassConstructor<T>, data: V, transform: true): T
-  public static validate<T extends object, V>(dto:  ClassConstructor<T>, data: V, transform: any): T | V {
+  public static validate<T extends object, V>(dto:  ClassConstructor<T>, data: V, transform: undefined | true): T | V {
     const entity = plainToInstance(dto, data, {strategy: "excludeAll"});
     const validationRes = validateSync(entity, {forbidUnknownValues: false});
     if (validationRes.length)
