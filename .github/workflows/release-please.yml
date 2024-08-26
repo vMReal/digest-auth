@@ -1,0 +1,62 @@
+on:
+  push:
+    branches:
+      - main
+      - test_cicd
+
+permissions:
+  contents: write
+  pull-requests: write
+
+name: release-please
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: node
+
+      - uses: actions/checkout@v4
+        if: ${{ steps.release.outputs.release_created }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          registry-url: 'https://registry.npmjs.org'
+        if: ${{ steps.release.outputs.release_created }}
+
+      - run: npm ci
+        if: ${{ steps.release.outputs.release_created }}
+
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.RELEASE_PLEASE_NPM_TOKEN}}
+        if: ${{ steps.release.outputs.release_created }}
+
+  test-installation:
+    needs: release-please
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 10.x, 12.x, 14.x, 16.x, 18.x, 20.x, 22.x ]
+
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - uses: actions/checkout@v4
+
+      - run: |
+          mkdir test-package-install
+          cd test-package-install
+          npm init -y
+
+      - run: |
+          PACKAGE_NAME=$(node -p "require('../package.json').name")
+          PACKAGE_VERSION=$(node -p "require('../package.json').version")
+          npm install "$PACKAGE_NAME@$PACKAGE_VERSION"
+        working-directory: ./test-package-install
