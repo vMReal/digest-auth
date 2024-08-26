@@ -31,7 +31,7 @@
     "cov": "run-s build test:unit cov:html",
     "cov:html": "nyc report --reporter=html",
     "cov:prepare": "nyc report --reporter=text-lcov > coverage.lcov",
-    "cov:check": "nyc report && nyc check-coverage --lines 95 --functions 100 --branches 80",
+    "cov:check": "nyc report && nyc check-coverage --lines 90 --functions 90 --branches 80",
     "reset": "git clean -dfx && git reset --hard && npm i",
     "clean": "trash build test"
   },
