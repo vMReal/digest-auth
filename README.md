@@ -312,7 +312,7 @@ For convenience in creating this hash, you can use the `HA1` helper.
 ```javascript
   import { HA1 } from '@mreal/digest-auth';
   
-  const secret = HA1.create('username', 'realm', 'password');
+  const secret = HA1.generate('username', 'realm', 'password');
   
   console.log(secret); // 4D86DBF27A98B2F451D973A00F567D6B
 
