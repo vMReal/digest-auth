@@ -1,0 +1,33 @@
+name: npm
+
+on:
+  workflow_dispatch:
+
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify it's a tag
+        id: check_tag
+        run: |
+          if [[ -z "${GITHUB_REF##*refs/tags/*}" ]]; then
+            echo "This workflow can only be triggered on a tag."
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: npm ci
+      - run: npm run build
+
+      - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.RELEASE_PLEASE_NPM_TOKEN}}
