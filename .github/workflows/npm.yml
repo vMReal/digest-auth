@@ -3,6 +3,10 @@ name: npm
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  id-token: write
+
 
 jobs:
   publish:
@@ -15,7 +19,7 @@ jobs:
       - name: Verify it's a tag
         id: check_tag
         run: |
-          if [[ -z "${GITHUB_REF##*refs/tags/*}" ]]; then
+          if [[ "${GITHUB_REF_TYPE}" != "tag" ]]; then
             echo "This workflow can only be triggered on a tag."
             exit 1
           fi
